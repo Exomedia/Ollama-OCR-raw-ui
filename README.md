@@ -1,6 +1,10 @@
 # Raw UI
 Really basic UI for image to text recognition using llama3.2-vision 
 
+## Preview
+![image](https://github.com/user-attachments/assets/c301970a-507d-42ad-bcc2-e4f7ca81603b)
+
+
 ## Installation
 ### Get Ollama
 Download Ollama [here](https://ollama.com/)
