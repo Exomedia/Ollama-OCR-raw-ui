@@ -5,12 +5,13 @@ import fs from 'fs/promises';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import { ollamaOCR, DEFAULT_OCR_SYSTEM_PROMPT } from 'ollama-ocr';
 import { fileURLToPath } from 'url';
+import config from './config.json' with { type: "json" };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = 3000;
+const port = config.port;
 
 const ensureDirectoryExistence = async (filePath) => {
     const dirname = path.dirname(filePath);
