@@ -10,22 +10,22 @@
 <body>
     <section class="section">
         <div class="container">
-            <h1 class="title has-text-centered">Upload your images to get text as DOCX</h1>
+            <h1 class="title has-text-centered" id="pageTitle">Upload your images to get text as DOCX</h1>
             
             <!-- Form for file upload -->
             <form id="uploadForm" enctype="multipart/form-data" class="box">
                 <div class="field">
-                    <label class="label">Select image for OCR:</label>
+                    <label class="label" id="fileLimitLabel">Select images for OCR:</label>
                     <div class="file has-name is-fullwidth">
                         <label class="file-label">
-                            <input class="file-input" type="file" id="imageFile" name="imageFile" accept="image/*" required>
+                            <input class="file-input" type="file" id="imageFiles" name="imageFiles" accept="image/*" multiple required>
                             <span class="file-cta">
                                 <span class="file-icon">
                                     <i class="fas fa-upload"></i>
                                 </span>
-                                <span class="file-label">Choose a file…</span>
+                                <span class="file-label">Choose files…</span>
                             </span>
-                            <span class="file-name" id="fileName">No file selected</span>
+                            <span class="file-name" id="fileNames">No files selected</span>
                         </label>
                     </div>
                 </div>
@@ -47,26 +47,54 @@
         const statusDiv = document.getElementById('status');
         const downloadDiv = document.getElementById('downloadLink');
         const downloadLink = document.getElementById('docxDownload');
-        const fileInput = document.getElementById('imageFile');
-        const fileNameSpan = document.getElementById('fileName');
+        const fileInput = document.getElementById('imageFiles');
+        const fileNameSpan = document.getElementById('fileNames');
+        const fileLimitLabel = document.getElementById('fileLimitLabel');
 
-        // Update file name when a file is selected
+        let fileLimit = 5; // Default fallback
+
+        // Fetch file limit from the backend
+        async function fetchConfig() {
+            try {
+                const response = await fetch('/config');
+                const config = await response.json();
+                fileLimit = config.fileLimit;
+                fileLimitLabel.textContent = `Select up to ${fileLimit} images for OCR:`;
+            } catch (error) {
+                console.error('Failed to fetch config:', error);
+            }
+        }
+
+        // Call fetchConfig on page load
+        fetchConfig();
+
+        // Update file names when files are selected
         fileInput.addEventListener('change', () => {
-            const fileName = fileInput.files[0]?.name || "No file selected";
-            fileNameSpan.textContent = fileName;
+            const files = Array.from(fileInput.files);
+            if (files.length > fileLimit) {
+                fileInput.value = ""; // Reset the input
+                fileNameSpan.textContent = `You can only upload up to ${fileLimit} files.`;
+            } else {
+                const fileNames = files.map(file => file.name).join(", ");
+                fileNameSpan.textContent = fileNames || "No files selected";
+            }
         });
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Get the file from the form input
+            const files = Array.from(fileInput.files);
+            if (files.length > fileLimit) {
+                statusDiv.textContent = `Error: You can only upload up to ${fileLimit} files.`;
+                return;
+            }
+
             const formData = new FormData();
-            formData.append('imageFile', fileInput.files[0]);
+            files.forEach(file => formData.append('imageFiles', file)); // Append all files
 
             statusDiv.textContent = "Processing... Please wait.";
 
             try {
-                // Send the image to the backend for OCR processing
                 const response = await fetch('/process-ocr', {
                     method: 'POST',
                     body: formData
