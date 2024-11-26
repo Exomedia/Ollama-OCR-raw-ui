@@ -46,8 +46,6 @@ const upload = multer({
     }
 });
 
-app.use(express.static('public'));
-
 const generateDocx = async (text, outputPath) => {
     try {
         const doc = new Document({
@@ -102,7 +100,9 @@ app.post('/process-ocr', upload.single('imageFile'), async (req, res) => {
     }
 });
 
+app.use(express.static('public'));
 app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
+
 
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
