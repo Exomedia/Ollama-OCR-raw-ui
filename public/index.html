@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR to DOCX</title>
+</head>
+<body>
+    <h1>Upload Image for OCR and Download DOCX</h1>
+
+    <!-- Form for file upload -->
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="imageFile">Select image for OCR:</label>
+        <input type="file" id="imageFile" name="imageFile" accept="image/*" required>
+        <button type="submit">Upload and Process</button>
+    </form>
+
+    <!-- Status and Download link -->
+    <div id="status"></div>
+    <div id="downloadLink" style="display:none;">
+        <a href="" id="docxDownload" download>Download DOCX</a>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const statusDiv = document.getElementById('status');
+        const downloadDiv = document.getElementById('downloadLink');
+        const downloadLink = document.getElementById('docxDownload');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Get the file from the form input
+            const formData = new FormData();
+            const fileInput = document.getElementById('imageFile');
+            formData.append('imageFile', fileInput.files[0]);
+
+            statusDiv.textContent = "Processing... Please wait.";
+
+            try {
+                // Send the image to the backend for OCR processing
+                const response = await fetch('/process-ocr', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const docxFileUrl = data.fileUrl;
+                    statusDiv.textContent = "OCR complete! You can download the DOCX file below.";
+
+                    // Show the download link
+                    downloadDiv.style.display = 'block';
+                    downloadLink.href = docxFileUrl;
+                } else {
+                    statusDiv.textContent = "Error processing OCR.";
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.textContent = "An error occurred during the OCR process.";
+            }
+        });
+    </script>
+</body>
+</html>
