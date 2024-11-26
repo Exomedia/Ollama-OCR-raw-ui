@@ -3,36 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCR to DOCX</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Image to DOCX</title>
 </head>
 <body>
-    <h1>Upload Image for OCR and Download DOCX</h1>
+    <section class="section">
+        <div class="container">
+            <h1 class="title has-text-centered">Upload your images to get text as DOCX</h1>
+            
+            <!-- Form for file upload -->
+            <form id="uploadForm" enctype="multipart/form-data" class="box">
+                <div class="field">
+                    <label class="label">Select image for OCR:</label>
+                    <div class="file has-name is-fullwidth">
+                        <label class="file-label">
+                            <input class="file-input" type="file" id="imageFile" name="imageFile" accept="image/*" required>
+                            <span class="file-cta">
+                                <span class="file-icon">
+                                    <i class="fas fa-upload"></i>
+                                </span>
+                                <span class="file-label">Choose a file…</span>
+                            </span>
+                            <span class="file-name" id="fileName">No file selected</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="field has-text-centered">
+                    <button class="button is-primary" type="submit">Upload and Process</button>
+                </div>
+            </form>
 
-    <!-- Form for file upload -->
-    <form id="uploadForm" enctype="multipart/form-data">
-        <label for="imageFile">Select image for OCR:</label>
-        <input type="file" id="imageFile" name="imageFile" accept="image/*" required>
-        <button type="submit">Upload and Process</button>
-    </form>
-
-    <!-- Status and Download link -->
-    <div id="status"></div>
-    <div id="downloadLink" style="display:none;">
-        <a href="" id="docxDownload" download>Download DOCX</a>
-    </div>
+            <!-- Status and Download link -->
+            <div id="status" class="has-text-centered"></div>
+            <div id="downloadLink" class="has-text-centered" style="display:none;">
+                <a href="" id="docxDownload" class="button is-link" download>Download DOCX</a>
+            </div>
+        </div>
+    </section>
 
     <script>
         const form = document.getElementById('uploadForm');
         const statusDiv = document.getElementById('status');
         const downloadDiv = document.getElementById('downloadLink');
         const downloadLink = document.getElementById('docxDownload');
+        const fileInput = document.getElementById('imageFile');
+        const fileNameSpan = document.getElementById('fileName');
+
+        // Update file name when a file is selected
+        fileInput.addEventListener('change', () => {
+            const fileName = fileInput.files[0]?.name || "No file selected";
+            fileNameSpan.textContent = fileName;
+        });
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             // Get the file from the form input
             const formData = new FormData();
-            const fileInput = document.getElementById('imageFile');
             formData.append('imageFile', fileInput.files[0]);
 
             statusDiv.textContent = "Processing... Please wait.";
